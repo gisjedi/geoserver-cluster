@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  gs-slave:
+    image: hmtisr/geoserver:2.8
+    environment:
+    - GOSU_USER=1000:50
+    - GOSU_CHOWN=/usr/local/tomcat
+    - JAVA_OPTS=-DGEOSERVER_CONSOLE_DISABLED=true
+    - GEOSERVER_DATA_DIR=/srv/geoserver
+    ports:
+    - 8080
+    - 8009
+    volumes_from:
+    - gs-data
+  gs-master:
+    image: hmtisr/geoserver:2.8
+    environment:
+    - GOSU_USER=1000:50
+    - GOSU_CHOWN=/usr/local/tomcat
+    - GEOSERVER_DATA_DIR=/srv/geoserver
+    ports:
+    - 8080:8080
+    volumes_from:
+    - gs-data
+  gs-sync:
+    image: hmtisr/geoserver-sync-marathon
+    volumes_from:
+    - gs-data
+  gs-data:
+    image: hmtisr/geoserver:2.8
+    command: tail -f /dev/null
+    volumes:
+    - /srv/geoserver
+  db:
+    image: hmtisr/postgis:9.4-2.1
